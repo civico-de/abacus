@@ -50,4 +50,7 @@ The decorator depends on `crmSearchFunction` keeping its `writeExpr()` and
 alias, and two periods of the same fields fail with the error above again.
 The decorator loads with the SearchKit admin page (`civicrm/admin/search`),
 the only page where core shows the search editor; a custom page that embeds
-`crmSearchAdmin` elsewhere gets core's alias.
+`crmSearchAdmin` elsewhere gets core's alias. afreact's React SearchKit builder
+names the period in the alias itself, so abacus tells it through
+`civi.afreact.assets` that it need not run the decorator
+(`Civi\Abacus\ReactBuilder`).
