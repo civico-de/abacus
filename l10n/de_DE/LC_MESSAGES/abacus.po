@@ -1,0 +1,77 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: abacus\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "%1 cannot be used as a column total."
+msgstr "%1 kann nicht als Spaltensumme verwendet werden."
+
+msgid "%1 needs a date field, got %2."
+msgstr "%1 braucht ein Datumsfeld, erhalten hat es %2."
+
+msgid "%1 needs a numeric field, got %2."
+msgstr "%1 braucht ein Zahlenfeld, erhalten hat es %2."
+
+msgid "A percentile must lie between 0 and 1."
+msgstr "Ein Perzentil muss zwischen 0 und 1 liegen."
+
+msgid "Argument %1 of %2 is missing."
+msgstr "Argument %1 von %2 fehlt."
+
+msgid "Count in period"
+msgstr "Anzahl im Zeitraum"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Fraction (0 to 1)"
+msgstr "Anteil (0 bis 1)"
+
+msgid "How far the values of the grouping typically lie from their mean."
+msgstr "Wie weit die Werte der Gruppe typischerweise von ihrem Durchschnitt abweichen."
+
+msgid "In period"
+msgstr "Im Zeitraum"
+
+msgid "Median"
+msgstr "Median"
+
+msgid "Percentile"
+msgstr "Perzentil"
+
+msgid "Period"
+msgstr "Zeitraum"
+
+msgid "Standard deviation"
+msgstr "Standardabweichung"
+
+msgid "Sum in period"
+msgstr "Summe im Zeitraum"
+
+msgid "The middle value of the grouping, unaffected by a few very large or small values."
+msgstr "Der mittlere Wert der Gruppe, unbeeinflusst von einzelnen sehr großen oder kleinen Werten."
+
+msgid "The number of records whose date lies in the chosen period, e.g. the previous fiscal year."
+msgstr "Die Zahl der Datensätze, deren Datum im gewählten Zeitraum liegt, z. B. im letzten Geschäftsjahr."
+
+msgid "The sum of the values whose date lies in the chosen period, e.g. the previous fiscal year."
+msgstr "Die Summe der Werte, deren Datum im gewählten Zeitraum liegt, z. B. im letzten Geschäftsjahr."
+
+msgid "The value below which the given fraction of the grouping lies, e.g. 0.9 for the top 10%."
+msgstr "Der Wert, unter dem der angegebene Anteil der Gruppe liegt, z. B. 0,9 für die obersten 10 %."
+
+msgid "Unknown date period \"%1\"."
+msgstr "Unbekannter Zeitraum „%1“."
+
+msgid "unknown type"
+msgstr "unbekannter Typ"
+
+msgid "Value"
+msgstr "Wert"
+
+msgid "Whether the date lies in the chosen period, e.g. the previous fiscal year."
+msgstr "Ob das Datum im gewählten Zeitraum liegt, z. B. im letzten Geschäftsjahr."

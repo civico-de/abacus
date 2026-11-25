@@ -1,0 +1,59 @@
+# CI stack, not an override of docker-compose.yml: app + db, no ports.
+#
+#   docker compose -f .docker/docker-compose.ci.yml up -d --wait
+#   docker compose -f .docker/docker-compose.ci.yml exec -T -u www-data \
+#     -w /var/www/html/ext/abacus app ck ci
+#
+# In a repository of several extensions, also pass
+# -e CK_TOOL_PATH=/civikitchen-repo/<directory> to the exec.
+#
+# The marked blocks are template-managed; between them the repo adds its own
+# lines, e.g. a sibling mounted at its extension key:
+#       - ../../sibling:/var/www/html/ext/de.example.sibling:ro
+# BEGIN CIVIKITCHEN MANAGED app
+name: abacus-ci
+
+services:
+  app:
+    image: ${CIVIKITCHEN_IMAGE:-ghcr.io/civico-de/civikitchen:v1}
+    pull_policy: always
+    depends_on:
+      db:
+        condition: service_healthy
+    # DB connection = image defaults (db / civicrm), matching the db service.
+    environment:
+      CIVICRM_AUTO_INSTALL: "1"
+      CIVIKITCHEN_SITE_URL: "http://localhost:8080"
+      # The profile seeds as admin, the user the e2e suites log in with.
+      CIVIKITCHEN_DEMO_USER: admin
+      CIVIKITCHEN_PROFILE: dev
+      CIVIKITCHEN_PROFILE_PATH: /civikitchen-profiles
+      CIVIKITCHEN_TRUST_EXTERNAL_PROFILES: "1"
+    volumes:
+      # Mounted under ext/ → enabled on first boot, <requires> resolved.
+      - ..:/var/www/html/ext/abacus
+      - ./profiles:/civikitchen-profiles:ro
+      - ./init.d:/civikitchen-init.d:ro
+# END CIVIKITCHEN MANAGED app
+
+# BEGIN CIVIKITCHEN MANAGED db
+  db:
+    image: mariadb:11.4
+    # Civi\Test's schema rebuild creates triggers as the app user; with binary
+    # logging the server refuses that unless it trusts non-SUPER creators.
+    command: --log-bin-trust-function-creators=1
+    # The test database is thrown away with the stack; in RAM no commit waits
+    # for an fsync.
+    tmpfs:
+      - /var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: civicrm
+      MYSQL_USER: civicrm
+      MYSQL_PASSWORD: civicrm
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+# END CIVIKITCHEN MANAGED db

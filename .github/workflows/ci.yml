@@ -1,0 +1,23 @@
+# Thin caller of civikitchen's reusable extension-ci.yml at the @v1 contract
+# (docs/releases.md). Up to the END marker template-managed; `with:` inputs
+# and further jobs go below it.
+# BEGIN CIVIKITCHEN MANAGED caller
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Manual run: a reusable-workflow rerun reuses the ref it first resolved, so
+  # picking up a moved civikitchen tag needs a fresh event.
+  workflow_dispatch:
+
+# The jobs only read the repo; do not inherit the org default token.
+permissions:
+  contents: read
+
+# No inputs: the workflow reads the extension key from info.xml itself.
+jobs:
+  ci:
+    uses: civico-de/civikitchen/.github/workflows/extension-ci.yml@v1
+# END CIVIKITCHEN MANAGED caller

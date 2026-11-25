@@ -1,0 +1,17 @@
+{
+    "name": "civico-de/abacus",
+    "type": "civicrm-ext",
+    "license": "AGPL-3.0",
+    "authors": [
+        {
+            "name": "civico GmbH",
+            "email": "johannes@civico.de"
+        }
+    ],
+    "require": {
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6"
+    }
+}

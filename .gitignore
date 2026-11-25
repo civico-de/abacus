@@ -1,0 +1,28 @@
+# Dependencies are installed, not committed — but their LOCKFILES are, so a
+# build can be reproduced. ckconform fails a repo that ignores a lockfile.
+/vendor/
+node_modules/
+
+# PHP tooling caches
+.phpunit.result.cache
+.phpunit.cache/
+.phpstan-cache/
+
+# Evidence the shell e2e suites write (OUT_DIR in tests/e2e/lib.sh)
+/tests/e2e/**/out/
+
+# Docker secrets
+.docker/.env
+# Seed snapshots the dev stack stores (.docker/docker-compose.yml)
+.docker/snapshots/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# TypeScript's build cache is named after its tsconfig; '.tsbuildinfo' misses it.
+*.tsbuildinfo

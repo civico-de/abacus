@@ -1,0 +1,103 @@
+# abacus dev stack — CiviCRM (civikitchen standalone) + MariaDB + maildev,
+# phpMyAdmin opt-in.
+#
+# Usage:
+#   /path/to/civikitchen/scaffold/ckup     # composer install, free host ports, `up -d`
+#   cd .docker && docker compose up -d     # default ports below; no composer install
+#
+# URLs:  CiviCRM http://localhost:${CK_HTTP_PORT:-8080} (admin/admin)
+#        maildev :${CK_MAILDEV_PORT:-1080} · phpMyAdmin :${CK_PMA_PORT:-8081}
+#        (opt-in: COMPOSE_PROFILES=pma in .docker/.env, or --profile pma)
+#
+# Host ports come from .docker/.env (gitignored; ckup writes it).
+# Re-provision from scratch: docker compose down -v && up -d
+#
+# Every gate the shared CI runs, in the container:
+#   /path/to/civikitchen/scaffold/ckx ck ci
+
+# Unnamed .docker/ stacks would all become one project "docker".
+name: abacus
+
+services:
+  app:
+    image: ${CIVIKITCHEN_IMAGE:-ghcr.io/civico-de/civikitchen:v1}
+    # :v1 matches the @v1 CI pin; CIVIKITCHEN_IMAGE can pin a CiviCRM minor
+    # (ghcr.io/civico-de/civikitchen:standalone-6.15).
+    pull_policy: always
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${CK_HTTP_PORT:-8080}:80"
+    # The DB connection is the image default, matching the db service below.
+    environment:
+      CIVICRM_AUTO_INSTALL: "1"
+      # Must match the host:port opened in the browser (asset URLs).
+      CIVIKITCHEN_SITE_URL: "http://localhost:${CK_HTTP_PORT:-8080}"
+      CIVIKITCHEN_DEMO_USER: admin
+      # Dependencies, config, seed records and API users: profiles/dev/profile.json.
+      CIVIKITCHEN_PROFILE: dev
+      CIVIKITCHEN_PROFILE_PATH: /civikitchen-profiles
+      CIVIKITCHEN_TRUST_EXTERNAL_PROFILES: "1"
+      # Outbound mail lands in maildev.
+      CIVIKITCHEN_SMTP_HOST: maildev
+      CIVIKITCHEN_SMTP_PORT: "1025"
+    volumes:
+      # Every extension mounted under ext/ is enabled on first boot, with its
+      # <requires> resolved. Mount siblings the same way.
+      - ..:/var/www/html/ext/abacus
+      # - ../../othersibling:/var/www/html/ext/de.example.othersibling
+      - ./profiles:/civikitchen-profiles:ro
+      # Hooks for the stack's environment, run after the profile. See init.d/README.md.
+      - ./init.d:/civikitchen-init.d:ro
+      # Seed snapshots (docs/seed-snapshots.md), kept across `down -v`.
+      - ./snapshots:/var/lib/civikitchen/snapshots
+
+  db:
+    image: mariadb:11.4
+    # Civi\Test's schema rebuild creates triggers as the app user; with binary
+    # logging the server refuses that unless it trusts non-SUPER creators.
+    command: --log-bin-trust-function-creators=1
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: civicrm
+      MYSQL_USER: civicrm
+      MYSQL_PASSWORD: civicrm
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  maildev:
+    image: maildev/maildev:2.2.1
+    ports:
+      - "${CK_MAILDEV_PORT:-1080}:1080"
+      - "${CK_SMTP_PORT:-1025}:1025"
+
+  # phpMyAdmin, opt-in like browser: add COMPOSE_PROFILES=pma to .docker/.env
+  # (ckup keeps it), or docker compose --profile pma up -d.
+  phpmyadmin:
+    profiles: [pma]
+    image: phpmyadmin/phpmyadmin:5.2.3
+    depends_on:
+      - db
+    ports:
+      - "${CK_PMA_PORT:-8081}:80"
+    environment:
+      PMA_HOST: db
+
+  # Headless Chrome for Civi\Test\MinkBase, opt-in (--profile browser), in the
+  # app's network so MinkBase reaches it at localhost:9222.
+  browser:
+    profiles: [browser]
+    image: chromedp/headless-shell:152.0.7939.3
+    network_mode: service:app
+    # With the default 64 MB /dev/shm Chrome drops script loads
+    # (net::ERR_INSUFFICIENT_RESOURCES).
+    shm_size: 2gb
+
+volumes:
+  db-data:

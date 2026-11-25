@@ -1,0 +1,50 @@
+includes:
+	# The CiviCRM call bans (APIv3 entry points, CRM_Utils_Array::value, …),
+	# shipped in the civikitchen image.
+	- /opt/civikitchen/toolbelt/phpstan-config/civicrm-disallowed.neon
+	# Opt in when the repo is ready; it is loud on older code:
+	# - /opt/civikitchen/vendor/phpstan/phpstan-strict-rules/rules.neon
+
+parameters:
+	level: 10
+	# Analyse for the floor composer.json promises, not for whatever PHP the
+	# image runs — keep the two in step (ckconform: php-version-coherence).
+	phpVersion: 80200
+	# Defensive runtime checks must not read as redundant against PHPDoc shapes,
+	# and PEAR-era PHPDocs lie (a documented "array" can be a PEAR_Error).
+	treatPhpDocTypesAsCertain: false
+	# Not implied by any level; APIv4 action parameters are exempted.
+	checkUninitializedProperties: true
+	# The whole repository, so a new directory is analysed without an edit here.
+	paths:
+		- .
+	excludePaths:
+		analyse:
+			# civix-generated; BAO/ is not — civix only seeds it, the logic is the repo's
+			- CRM/*/DAO/*
+			- abacus.civix.php
+			- mixin (?)
+			# phpstan-tests.neon.dist analyses the suite in a second pass
+			- tests (?)
+		analyseAndScan:
+			- vendor (?)
+			# any depth: a frontend/ package's node_modules ships PHP too
+			- */node_modules/*
+			- build (?)
+			- .civikitchen-siblings (?)
+			# ckdeps config: its classes exist only in the image's toolbelt
+			- composer-dependency-analyser.php (?)
+	scanFiles:
+		- abacus.civix.php
+	# scanDirectories:
+	#	# Only what the image's phpstan bootstrap does not autoload, e.g.:
+	#	# - /var/www/html/core/ext/flexmailer/src
+	bootstrapFiles:
+		# Core, its ext packages and the info.xml <requires>, shipped in the image.
+		- /opt/civikitchen/toolbelt/phpstan-config/bootstrap.php
+	civikitchen:
+		# `civicrm_` tables of other extensions this repo queries in raw SQL:
+		#	- civicrm_someext_thing
+		sqlKnownTables: []
+	# ignoreErrors: identifier + path + count with a reason, never a baseline.
+	# A boundary report on a <requires> extension means its checkout is not mounted.

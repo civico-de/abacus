@@ -1,0 +1,30 @@
+$schema: 'https://raw.githubusercontent.com/civico-de/civikitchen/main/packages/civikitchen-scenario-schema/scenario.schema.json'
+version: 1
+scenario:
+  name: abacus
+  image: 'ghcr.io/civico-de/civikitchen:v1'
+  database:
+    image: 'mariadb:11.4'
+  extension:
+    key: abacus
+    path: .
+  credentials_output: file
+  checks:
+    - conform
+    - lint
+    - format
+    - compatibility
+    - dependencies
+    - javascript
+    - test
+    - coverage
+    - lifecycle
+    - smarty
+    - taint
+policy:
+  license: AGPL-3.0
+  copyright: 'civico GmbH'
+  civicrm_floor_reasons:
+    - version: '6.20'
+      reason: 'the period functions use CRM_Utils_Date::relativeToSql(), added in 6.20'
+
