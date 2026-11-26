@@ -26,3 +26,4 @@ Thumbs.db
 
 # TypeScript's build cache is named after its tsconfig; '.tsbuildinfo' misses it.
 *.tsbuildinfo
+.ckrelease/
